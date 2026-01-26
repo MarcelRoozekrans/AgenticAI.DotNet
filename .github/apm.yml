@@ -1,0 +1,204 @@
+---
+# APM Configuration (Agent Package Manager)
+# Defines project structure, scripts, dependencies, and context windows for agentic workflows
+
+version: "1.0"
+name: "AgenticAI"
+description: "Agentic primitives framework for reliable AI workflows"
+author: "Your Team"
+
+# Development Scripts
+scripts:
+  # Core development
+  dev: "npm run dev"
+  build: "npm run build"
+  test: "npm run test"
+  lint: "npm run lint"
+  format: "npm run format"
+  
+  # Testing variants
+  test:unit: "npm run test -- --testPathPattern=unit"
+  test:integration: "npm run test -- --testPathPattern=integration"
+  test:coverage: "npm run test -- --coverage"
+  
+  # Database
+  db:migrate: "npm run db:migrate"
+  db:seed: "npm run db:seed"
+  db:reset: "npm run db:reset"
+  
+  # Documentation
+  docs: "npm run docs"
+  docs:serve: "npm run docs:serve"
+
+# Dependencies by category
+dependencies:
+  required:
+    - node: ">= 18.0.0"
+    - npm: ">= 9.0.0"
+  optional:
+    - docker: ">= 20.0.0"
+    - postgresql: ">= 13.0"
+    - redis: ">= 6.0"
+  dev:
+    - typescript: "^5.0.0"
+    - jest: "^29.0.0"
+    - eslint: "^8.0.0"
+
+# Context Windows for Different Roles
+context-windows:
+  architect:
+    max_tokens: 8000
+    focus: "Planning, design, specification"
+    session_duration: "30-45 min"
+    tools: ["codebase", "search", "problems"]
+    
+  developer:
+    max_tokens: 12000
+    focus: "Implementation, testing, debugging"
+    session_duration: "60-90 min"
+    tools: ["codebase", "search", "editFiles", "runCommands", "problems"]
+    
+  reviewer:
+    max_tokens: 8000
+    focus: "Code quality, security, patterns"
+    session_duration: "30-45 min"
+    tools: ["codebase", "search", "problems"]
+
+# Inner/Outer Loop Configuration
+inner-loop:
+  # Single developer, single session
+  # Use these settings for focused implementation work
+  description: "Developer mode - full access within session"
+  session_mode: "streaming"
+  iteration_time: "20-30 minutes"
+  scope: "Single component/feature"
+  tools_allowed: ["all_safe_tools"]
+
+outer-loop:
+  # Full team, orchestrated workflow across sessions
+  # Use development-cycle.prompt.md for orchestration
+  description: "Team mode - coordinated phases with handoffs"
+  session_mode: "discrete_phases"
+  phase_duration: "30-45 minutes each"
+  phases:
+    - "Architect (Phase 1)"
+    - "Developer (Phase 2)"
+    - "Reviewer (Phase 3)"
+    - "Iterate (Phase 4, if needed)"
+    - "Verify (Phase 5)"
+  sync_points: []
+  auto_advance: true
+  unattended: true
+
+# MCP (Model Context Protocol) Configuration
+mcp:
+  enabled: true
+  security_level: "strict"
+  allowed_protocols:
+    - github: "Repository and issue access"
+    - filesystem: "Safe file operations only"
+    - shell: "Sandboxed command execution"
+    - context7: "Library documentation and code snippets"
+
+# Context7 MCP Server
+# Provides up-to-date documentation and code examples for any library
+# Usage: @dev "How do I use React hooks?" → Fetches latest React docs + examples
+context7:
+  enabled: true
+  purpose: "Real-time library documentation and code snippet lookup"
+  libraries:
+    - react: "UI framework with hooks"
+    - vue: "Progressive framework"
+    - next: "React framework with routing"
+    - typescript: "Type-safe JavaScript"
+    - mongodb: "NoSQL database"
+    - postgresql: "SQL database"
+    - nodejs: "JavaScript runtime"
+    - express: "Web framework"
+    - fastapi: "Python async framework"
+    - flask: "Python web framework"
+  features:
+    - library_search: "Find documentation for any library"
+    - code_examples: "Get working code snippets"
+    - api_reference: "Browse API documentation"
+    - version_support: "Access specific library versions"
+  use_cases:
+    - architect: "Research library capabilities during design"
+    - developer: "Look up API docs while implementing"
+    - reviewer: "Check for best practices and patterns"
+
+# Project Structure
+structure:
+  source: "src/"
+  tests: "tests/"
+  docs: "docs/"
+  specs: "docs/specs/"
+  github_config: ".github/"
+  config_files:
+    - "tsconfig.json"
+    - "package.json"
+    - ".env.example"
+
+# Specification Template Reference
+spec:
+  template: "docs/specs/_template.spec.md"
+  required_sections:
+    - "Problem Statement"
+    - "Functional Requirements"
+    - "Technical Design"
+    - "Implementation Plan"
+    - "Acceptance Criteria"
+    - "Risks & Mitigations"
+
+# Memory Configuration
+memory:
+  file: ".memory.md"
+  update_frequency: "Per phase completion"
+  sections_maintained:
+    - "Project Context"
+    - "Important Patterns"
+    - "Failed Approaches (Don't Repeat)"
+    - "Known Issues & Quirks"
+    - "Critical Success Factors"
+    - "External Dependencies"
+    - "Session Memory"
+
+# Quality Gates
+quality-gates:
+  phase1:
+    - "Specification complete and approved"
+    - "Architecture diagram created"
+    - "Task breakdown estimated"
+  phase2:
+    - "Tests written and failing (Red)"
+    - "Code implemented (Green)"
+    - "Code refactored (Blue)"
+    - "All acceptance criteria passing"
+  phase3:
+    - "Security review passed"
+    - "Performance acceptable"
+    - "Clean Architecture compliance verified"
+  phase5:
+    - "Static analysis: PASS"
+    - "Unit tests: PASS"
+    - "Integration tests: PASS"
+    - "Build: PASS"
+    - "Runtime verification: PASS"
+
+# Deployment Configuration
+deployment:
+  target_environments: ["development", "staging", "production"]
+  rollout_strategy: "blue-green"
+  rollback_enabled: true
+  notification_channels: ["slack", "email"]
+
+# Monitoring & Observability
+monitoring:
+  enabled: true
+  error_tracking: "Sentry"
+  performance: "DataDog"
+  logs: "CloudWatch"
+  dashboards:
+    - "Application Health"
+    - "Error Rates"
+    - "Performance Metrics"
