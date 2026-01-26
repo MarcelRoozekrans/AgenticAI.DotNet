@@ -3,46 +3,53 @@
 # Defines project structure, scripts, dependencies, and context windows for agentic workflows
 
 version: "1.0"
-name: "AgenticAI"
-description: "Agentic primitives framework for reliable AI workflows"
+name: "AgenticAI.DotNet"
+description: "Agentic primitives framework for reliable AI workflows - .NET 10 Edition"
 author: "Your Team"
+language: "C#"
+runtime: ".NET 10"
 
 # Development Scripts
 scripts:
   # Core development
-  dev: "npm run dev"
-  build: "npm run build"
-  test: "npm run test"
-  lint: "npm run lint"
-  format: "npm run format"
+  dev: "dotnet build"
+  build: "dotnet build --configuration Release"
+  test: "dotnet test"
+  lint: "dotnet format --verify-no-changes"
+  format: "dotnet format"
   
   # Testing variants
-  test:unit: "npm run test -- --testPathPattern=unit"
-  test:integration: "npm run test -- --testPathPattern=integration"
-  test:coverage: "npm run test -- --coverage"
+  test:unit: "dotnet test --filter Category=Unit"
+  test:integration: "dotnet test --filter Category=Integration"
+  test:coverage: "dotnet test /p:CollectCoverage=true /p:CoverageFormat=opencover"
   
   # Database
-  db:migrate: "npm run db:migrate"
-  db:seed: "npm run db:seed"
-  db:reset: "npm run db:reset"
+  db:migrate: "dotnet ef database update"
+  db:seed: "dotnet ef database drop -f && dotnet ef database update"
+  db:reset: "dotnet ef database drop -f && dotnet ef database update"
   
   # Documentation
-  docs: "npm run docs"
-  docs:serve: "npm run docs:serve"
+  docs: "dotnet build -c Release /p:GenerateDocumentationFile=true"
+  docs:serve: "start-static-server docs/"
 
 # Dependencies by category
 dependencies:
   required:
-    - node: ">= 18.0.0"
-    - npm: ">= 9.0.0"
+    - dotnet: ">= 10.0.0"
   optional:
     - docker: ">= 20.0.0"
     - postgresql: ">= 13.0"
+    - sql-server: ">= 2019"
     - redis: ">= 6.0"
-  dev:
-    - typescript: "^5.0.0"
-    - jest: "^29.0.0"
-    - eslint: "^8.0.0"
+  nuget:
+    - CSharpFunctionalExtensions: "^2.41"
+    - SonarAnalyzer.CSharp: "^9.0"
+    - Microsoft.CodeAnalysis.NetAnalyzers: "^8.0"
+    - Meziantou.Analyzer: "^0.0"
+    - xunit: "^2.6"
+    - xunit.runner.visualstudio: "^2.5"
+    - Moq: "^4.20"
+    - FluentAssertions: "^6.12"
 
 # Context Windows for Different Roles
 context-windows:
@@ -102,24 +109,21 @@ mcp:
 
 # Context7 MCP Server
 # Provides up-to-date documentation and code examples for any library
-# Usage: @dev "How do I use React hooks?" → Fetches latest React docs + examples
+# Usage: @dev "How do I use Railway-Oriented Programming?" → Fetches latest CSharpFunctionalExtensions docs
 context7:
   enabled: true
   purpose: "Real-time library documentation and code snippet lookup"
   libraries:
-    - react: "UI framework with hooks"
-    - vue: "Progressive framework"
-    - next: "React framework with routing"
-    - typescript: "Type-safe JavaScript"
-    - mongodb: "NoSQL database"
-    - postgresql: "SQL database"
-    - nodejs: "JavaScript runtime"
-    - express: "Web framework"
-    - fastapi: "Python async framework"
-    - flask: "Python web framework"
+    - csharp: "C# language features and patterns"
+    - dotnet: ".NET runtime and framework"
+    - "csharp-functional-extensions": "Railway-Oriented Programming library"
+    - "entity-framework-core": "ORM for database access"
+    - xunit: "Unit testing framework"
+    - moq: "Mocking library"
+    - "sonarqube": "Code quality analysis"
   features:
-    - library_search: "Find documentation for any library"
-    - code_examples: "Get working code snippets"
+    - library_search: "Find documentation for any NuGet package"
+    - code_examples: "Get working C# code snippets"
     - api_reference: "Browse API documentation"
     - version_support: "Access specific library versions"
   use_cases:
@@ -135,9 +139,10 @@ structure:
   specs: "docs/specs/"
   github_config: ".github/"
   config_files:
-    - "tsconfig.json"
-    - "package.json"
+    - ".csproj"
+    - "appsettings.json"
     - ".env.example"
+    - "global.json"
 
 # Specification Template Reference
 spec:

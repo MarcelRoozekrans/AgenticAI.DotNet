@@ -1,15 +1,18 @@
-# 🤖 Agentic AI Template
+# 🤖 Agentic AI Template - .NET Edition
 
-A template repository for building reliable AI workflows using **agentic primitives** and **context engineering**.
+A template repository for building reliable AI workflows in **.NET 10** using **agentic primitives**, **context engineering**, and **functional programming patterns**.
 
 Based on the [GitHub Blog: How to build reliable AI workflows](https://github.blog/ai-and-ml/github-copilot/how-to-build-reliable-ai-workflows-with-agentic-primitives-and-context-engineering/).
 
-## 🚀 Quick Start
+## 🚀 Quick Start (.NET 10)
 
 1. **Use this template**: Click "Use this template" → "Create a new repository"
 2. **Clone your new repo**: `git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git`
-3. **Customize**: Edit the files in `.github/` to match your project's needs
-4. **Start coding**: Open in VS Code with GitHub Copilot enabled
+3. **Ensure .NET 10 SDK**: `dotnet --version` (requires .NET 10.0 or later)
+4. **Restore dependencies**: `dotnet restore`
+5. **Build project**: `dotnet build`
+6. **Run tests**: `dotnet test`
+7. **Start coding**: Open in VS Code with GitHub Copilot enabled
 
 ## 🎯 Setup from Scratch: Complete Guide
 
@@ -33,18 +36,18 @@ name: "YourProjectName"
 description: "Your project description"
 author: "Your Team"
 
-# Update scripts for your tech stack
+# Update scripts for .NET
 scripts:
-  dev: "npm run dev"        # or: python app.py, go run main.go
-  build: "npm run build"
-  test: "npm run test"
-  lint: "npm run lint"
-  format: "npm run format"
+  dev: "dotnet build"
+  build: "dotnet build"
+  test: "dotnet test"
+  lint: "dotnet format --verify-no-changes"
+  format: "dotnet format"
 
 # Update dependencies
 dependencies:
   required:
-    - node: ">= 18.0.0"     # Change based on your tech stack
+    - dotnet: ">= 10.0.0"    # .NET 10 or later
   optional:
     - docker: ">= 20.0.0"
 ```
@@ -57,10 +60,12 @@ Edit `.github/copilot-instructions.md`:
 [Replace with YOUR project description]
 
 ## Tech Stack
-- **Language**: TypeScript / Python / Go / [your language]
-- **Framework**: React / FastAPI / Express / [your framework]
-- **Database**: PostgreSQL / MongoDB / [your database]
-- **Testing**: Jest / pytest / [your test framework]
+- **Language**: C# 13.0
+- **Framework**: .NET 10
+- **Pattern Library**: CSharpFunctionalExtensions (Railway-Oriented Programming)
+- **Database**: [PostgreSQL / SQL Server / [your database]]
+- **Testing**: xUnit / NUnit
+- **Code Analysis**: SonarAnalyzer.CSharp, Microsoft.CodeAnalysis.NetAnalyzers, Meziantou.Analyzer
 
 ## Code Style & Conventions
 [Update with your project's specific rules]
@@ -71,20 +76,21 @@ Edit `.github/copilot-instructions.md`:
 
 #### 2c. Update Domain Instructions
 Edit files in `.github/instructions/`:
-- **frontend.instructions.md**: Update `applyTo` patterns and framework guidelines
-- **backend.instructions.md**: Add backend-specific patterns and database conventions
-- **testing.instructions.md**: Define your testing strategy and coverage targets
-- **docs.instructions.md**: Set documentation standards
+- **backend.instructions.md**: C#/.NET patterns, async/await, Railway-Oriented Programming, functional extensions
+- **testing.instructions.md**: xUnit testing strategy, coverage targets (minimum 80%)
+- **docs.instructions.md**: XML documentation standards for C#
 
-Example for frontend.instructions.md:
+Example for backend.instructions.md:
 ```markdown
-# Frontend Development Guidelines
+# C#/.NET Backend Development Guidelines
 
-This guide applies to: **/*.{js,jsx,ts,tsx,css,scss}
+This guide applies to: **/*.cs files
 
-## Framework: React
-- Use functional components with hooks
-- Organize by feature
+## Language: C# 13.0 on .NET 10
+- Use modern C# features (records, nullable reference types, pattern matching)
+- Apply Railway-Oriented Programming with CSharpFunctionalExtensions
+- Use async/await for all I/O operations
+- Organize by domain/feature
 - [Add your specific patterns]
 ```
 
@@ -186,32 +192,41 @@ Initialize agent memory:
 ### Step 4: Set Up Development Environment
 
 #### 4a. Create your tech stack setup
-Example for Node.js:
+Example for .NET 10:
 ```bash
-npm init -y
-npm install [your dependencies]
-npm install --save-dev typescript jest eslint prettier
+dotnet new globaljson --sdk-version 10.0.0 --roll-forward latestFeature
+dotnet new web -n YourProject
+cd YourProject
+dotnet add package CSharpFunctionalExtensions
+dotnet add package SonarAnalyzer.CSharp
+dotnet add package Microsoft.CodeAnalysis.NetAnalyzers
+dotnet add package Meziantou.Analyzer
 ```
 
-#### 4b. Configure build/test scripts in `package.json`:
-```json
-{
-  "scripts": {
-    "dev": "your-dev-command",
-    "build": "your-build-command",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "lint": "eslint src/",
-    "format": "prettier --write src/"
-  }
-}
+#### 4b. Configure build settings in `.csproj`:
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="CSharpFunctionalExtensions" Version="2.x.x" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.x.x" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.x.x" />
+    <PackageReference Include="Meziantou.Analyzer" Version="2.x.x" />
+  </ItemGroup>
+</Project>
 ```
 
-#### 4c. Verify apm.yml scripts match your setup:
+#### 4c. Verify dotnet commands work:
 ```bash
-npm run dev          # Should work
-npm run build        # Should work
-npm run test         # Should work
+dotnet build            # Should work
+dotnet test             # Should work
+dotnet format           # Should work
 ```
 
 ### Step 5: Create Your First Specification
@@ -400,11 +415,11 @@ The `apm.yml` file is the **central configuration hub** for your agentic setup. 
 
 ### Example: Using apm.yml
 
-**Scripts** - Run any command from apm.yml:
+**Scripts** - Run commands from apm.yml:
 ```bash
-npm run dev          # Fast development mode
-npm run test:coverage # Check test coverage
-npm run db:reset     # Reset database
+dotnet build               # Build project
+dotnet test                # Run all tests
+dotnet test --coverage     # Check test coverage
 ```
 
 **Context Windows** - Different roles get different AI focus:

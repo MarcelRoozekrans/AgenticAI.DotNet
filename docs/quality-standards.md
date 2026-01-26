@@ -1,6 +1,8 @@
 # Quality Standards & Automated Checks
 
 > This document defines the quality gates and automated checks that agents must validate during code review and development.
+> This template implements [Microsoft ASP.NET Core Best Practices](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/best-practices)
+> For architectural reviews, see [ASP.NET Core Best Practices Guide](.github/instructions/aspnet-core-best-practices.md)
 
 ## Overview
 
@@ -15,139 +17,266 @@ Quality standards are organized by category and enforcement level. Agents should
 
 ## Code Quality
 
-### Syntax & Compilation
+### Compilation & Build
 
-| Standard | Enforcement | Check |
-|----------|-------------|-------|
-| Code compiles/runs without errors | CRITICAL 🔴 | `npm run build` or language-specific build |
-| No TypeScript/type errors | CRITICAL 🔴 | Type checking enabled, no `any` without justification |
-| ESLint passes with no errors | CRITICAL 🔴 | `npm run lint` - all errors fixed |
-| Code formatting consistent | CRITICAL 🔴 | `npm run format` - uses project formatter |
+| Standard | Enforcement | Check | Command |
+|----------|-------------|-------|---------|
+| Code compiles without errors | CRITICAL 🔴 | Zero build errors | `dotnet build` |
+| No compiler warnings | CRITICAL 🔴 | TreatWarningsAsErrors = true | `dotnet build` |
+| Static analysis passes | CRITICAL 🔴 | All analyzers green | `dotnet build` |
+
+### Static Analysis Checklist
+
+**SonarAnalyzer.CSharp** 🔴 CRITICAL
+- [ ] No code smells (complexity, duplication, maintainability)
+- [ ] No security vulnerabilities identified
+- [ ] No potential bugs detected
+- Run: `dotnet build /p:TreatWarningsAsErrors=true`
+
+**Microsoft.CodeAnalysis.NetAnalyzers** 🔴 CRITICAL
+- [ ] API usage follows best practices
+- [ ] No deprecated API usage
+- [ ] Proper exception handling
+- [ ] Async/await usage correct
+- Violations: Build fails
+
+**Meziantou.Analyzer** 🔴 CRITICAL
+- [ ] Using modern C# features appropriately
+- [ ] String formatting optimized
+- [ ] LINQ usage efficient
+- [ ] Regular expressions validated
+- Violations: Build fails
 
 ### Code Structure
 
 | Standard | Enforcement | Check |
 |----------|-------------|-------|
-| Functions under 30 lines | HIGH 🟠 | Count lines, consider refactoring |
-| Single Responsibility Principle | HIGH 🟠 | Each function has one clear purpose |
-| Max 3-4 function parameters | MEDIUM 🟡 | Use options object for complex signatures |
-| DRY principle followed | HIGH 🟠 | No code duplication - refactor repeated logic |
-| Cyclomatic complexity < 10 | MEDIUM 🟡 | Consider breaking down complex functions |
-| Proper error handling | HIGH 🟠 | No silent failures, explicit error types |
+| Methods under 30 lines | HIGH 🟠 | Count lines, consider refactoring |
+| Single Responsibility Principle | HIGH 🟠 | Each method has one clear purpose |
+| Max 3-4 method parameters | MEDIUM 🟡 | Use options object for complex signatures |
+| DRY principle followed | HIGH 🟠 | No code duplication - refactor |
+| Cyclomatic complexity < 10 | MEDIUM 🟡 | Consider breaking down complex methods |
+| Proper error handling | HIGH 🟠 | Use Result<T> pattern, no silent failures |
 
 ### Naming Conventions
 
 | Standard | Enforcement | Check |
 |----------|-------------|-------|
-| Files in kebab-case | CRITICAL 🔴 | File names follow `my-file.ts` pattern |
-| Classes in PascalCase | CRITICAL 🔴 | `class UserService` |
-| Functions in camelCase | CRITICAL 🔴 | `function getUserById()` |
-| Constants in UPPER_SNAKE_CASE | CRITICAL 🔴 | `const MAX_RETRIES = 5` |
-| Boolean functions start with is/has | MEDIUM 🟡 | `isActive()`, `hasPermission()` |
-| Semantic naming | HIGH 🟠 | Names describe purpose, avoid ambiguous names |
+| Files PascalCase | CRITICAL 🔴 | Match class name: `UserService.cs` |
+| Classes PascalCase | CRITICAL 🔴 | `class UserService` |
+| Methods PascalCase | CRITICAL 🔴 | `public async Task GetUserAsync()` |
+| Properties PascalCase | CRITICAL 🔴 | `public string FirstName { get; set; }` |
+| Private fields _ prefix | CRITICAL 🔴 | `private IRepository _repository` |
+| Constants UPPER_SNAKE_CASE | CRITICAL 🔴 | `const int MAX_RETRY_COUNT = 5` |
+| Async methods Async suffix | HIGH 🟠 | `GetUserAsync`, `CreateUserAsync` |
+| Boolean methods Is/Has/Can | MEDIUM 🟡 | `IsActive`, `HasPermission`, `CanDelete` |
+
+## Nullable Reference Types & Type Safety
+
+| Standard | Enforcement | Check |
+|----------|-------------|-------|
+| #nullable enable in all files | CRITICAL 🔴 | Enabled at file or project level |
+| No `#pragma` null suppress | HIGH 🟠 | Address null warnings, don't suppress |
+| No `nullable: disable` | CRITICAL 🔴 | All code must use strict null checks |
+| Proper null annotations | HIGH 🟠 | String vs string? used correctly |
+| No `[AllowNull]` misuse | MEDIUM 🟡 | Document when properties can be null |
+
+## Railway-Oriented Programming Pattern
+
+| Standard | Enforcement | Check |
+|----------|-------------|-------|
+| Operations return Result<T> | HIGH 🟠 | Methods that can fail use Result pattern |
+| No exceptions for expected failures | HIGH 🟠 | Use Result.Failure(), not throw |
+| Proper Result chaining | HIGH 🟠 | Use Map, Bind, Tap correctly |
+| Async operations use MapAsync/BindAsync | HIGH 🟠 | Never block with .Result or .Wait() |
 
 ## Documentation
 
 | Standard | Enforcement | Check |
 |----------|-------------|-------|
-| Public functions have JSDoc/docstring | HIGH 🟠 | All exported functions documented |
-| Parameters documented | HIGH 🟠 | `@param` tags with type and description |
-| Return values documented | HIGH 🟠 | `@returns` tag with type and description |
-| Exceptions documented | MEDIUM 🟡 | `@throws` tags for thrown errors |
-| Complex logic has comments | MEDIUM 🟡 | "Why" comments on non-obvious code |
-| README updated for new features | MEDIUM 🟡 | User-facing changes in docs |
-| Type definitions documented | MEDIUM 🟡 | Complex types have comments |
+| Public types have XML docs | HIGH 🟠 | `///` comments on all public classes/interfaces |
+| Public methods have XML docs | HIGH 🟠 | `///` with `<summary>`, `<param>`, `<returns>` |
+| Parameters documented | HIGH 🟠 | `<param name="x">Description</param>` |
+| Return values documented | HIGH 🟠 | `<returns>Description</returns>` |
+| Exceptions documented | MEDIUM 🟡 | `<exception cref="Ex">When thrown</exception>` |
+| Complex logic has comments | MEDIUM 🟡 | Explain "why", not "what" |
+| XML docs generate without warnings | HIGH 🟠 | Run with `/p:GenerateDocumentationFile=true` |
 
-**JSDoc Template**:
-```typescript
-/**
- * Brief description of what this does.
- * 
- * Longer description if needed, explaining context and behavior.
- * 
- * @param name - Description of parameter
- * @param options - Configuration options
- * @returns Description of return value
- * @throws {ErrorType} When this error occurs
- * 
- * @example
- * const result = await myFunction('value', { flag: true });
- */
+### XML Documentation Template
+
+```csharp
+/// <summary>
+/// Brief description of what this method does.
+/// </summary>
+/// <param name="userId">The unique identifier of the user.</param>
+/// <param name="cancellationToken">Token to cancel the operation.</param>
+/// <returns>
+/// A <see cref="Result{T}"/> containing the user if found,
+/// or a failure result if not found or if input is invalid.
+/// </returns>
+/// <exception cref="ArgumentNullException">Thrown when userId is null.</exception>
+/// <example>
+/// <code>
+/// var result = await service.GetUserAsync("123");
+/// if (result.IsSuccess)
+///     Console.WriteLine(result.Value.Name);
+/// </code>
+/// </example>
+public async Task<Result<User>> GetUserAsync(string userId, CancellationToken cancellationToken = default)
+{
+    // implementation
+}
+```
+
+## Async/Await Compliance
+
+| Standard | Enforcement | Check |
+|----------|-------------|-------|
+| All I/O operations async | CRITICAL 🔴 | Database, HTTP, file system all async |
+| Methods return Task/Task<T> | CRITICAL 🔴 | Not void (except event handlers) |
+| No .Result or .Wait() usage | CRITICAL 🔴 | Never block - causes deadlocks |
+| ConfigureAwait(false) in libraries | HIGH 🟠 | Library code uses ConfigureAwait(false) |
+| Proper CancellationToken support | HIGH 🟠 | I/O operations accept CancellationToken |
+| Async IEnumerable for streaming | HIGH 🟠 | Use `async IAsyncEnumerable` for streams |
+
+## Testing
+
+| Standard | Enforcement | Check | Coverage |
+|----------|-------------|-------|----------|
+| Minimum code coverage | HIGH 🟠 | >= 80% overall | `dotnet test /p:CollectCoverage=true` |
+| All critical paths tested | HIGH 🟠 | Success and failure paths covered | 95%+ for critical services |
+| Edge cases tested | HIGH 🟠 | null, empty, boundary values | 100% for value objects |
+| Error scenarios tested | HIGH 🟠 | All Result.Failure cases tested | 100% for error handling |
+| Test names descriptive | MEDIUM 🟡 | `MethodName_Scenario_ExpectedResult` | All tests |
+| No skipped tests | MEDIUM 🟡 | All `.Skip` tests have issue reference | 0 skipped |
+| Integration tests for APIs | MEDIUM 🟡 | E2E tests for critical flows | At least 50% |
+| Async tests properly await | HIGH 🟠 | No race conditions or incomplete assertions | All async tests |
+
+### Test Quality Checklist
+
+```
+Unit Tests:
+☐ Follows AAA pattern (Arrange, Act, Assert)
+☐ Single logical assertion per test
+☐ Test name clearly describes scenario
+☐ Uses appropriate mock/stub strategy
+☐ Cleans up resources after test
+
+Integration Tests:
+☐ Uses test database or in-memory database
+☐ Transaction isolation for each test
+☐ Realistic test data setup
+☐ Validates end-to-end flow
+☐ Cleans up test data after run
 ```
 
 ## Performance
 
 | Standard | Enforcement | Check |
 |----------|-------------|-------|
-| No N+1 queries in loops | HIGH 🟠 | Batch database queries |
-| Avoid unnecessary re-renders (React) | HIGH 🟠 | Proper memoization and deps |
-| Appropriate data structure usage | MEDIUM 🟡 | Use Set/Map for lookups, Array for iteration |
-| No blocking operations in main thread | HIGH 🟠 | Async/await for I/O operations |
-| Reasonable memory usage | MEDIUM 🟡 | No memory leaks from closures/timers |
-| API response time < 200ms | MEDIUM 🟡 | Acceptable latency for user-facing endpoints |
+| No N+1 queries in loops | HIGH 🟠 | Use Include/Join for related data |
+| Efficient pagination | MEDIUM 🟡 | Skip/Take with indexes |
+| String operations optimized | MEDIUM 🟡 | StringBuilder for loops, string interpolation |
+| LINQ queries efficient | MEDIUM 🟡 | Execute server-side when possible |
+| Appropriate async operations | HIGH 🟠 | Use async for I/O, not CPU-bound work |
+| Memory leaks prevented | HIGH 🟠 | Proper disposal of resources |
+| API response time acceptable | MEDIUM 🟡 | < 200ms for typical endpoints |
 
 ## Security
 
 | Standard | Enforcement | Check |
 |----------|-------------|-------|
-| No hardcoded secrets | CRITICAL 🔴 | Use environment variables |
-| Input validation on all user input | HIGH 🟠 | Sanitize and validate all inputs |
-| No SQL injection vulnerabilities | CRITICAL 🔴 | Use parameterized queries |
-| Proper authentication checks | HIGH 🟠 | Verify user permissions before operations |
-| No XSS vulnerabilities (web) | HIGH 🟠 | Proper output encoding |
-| Dependencies without known CVEs | HIGH 🟠 | Run `npm audit` |
-| No sensitive data in logs | HIGH 🟠 | Don't log passwords, tokens, PII |
-
-## Testing
-
-| Standard | Enforcement | Check |
-|----------|-------------|-------|
-| Minimum 80% code coverage | HIGH 🟠 | Coverage report shows >= 80% |
-| All critical paths tested | HIGH 🟠 | Happy path and error paths |
-| Edge cases tested | HIGH 🟠 | null/undefined, empty arrays, boundary values |
-| Error scenarios tested | HIGH 🟠 | All throw statements tested |
-| Test names describe behavior | MEDIUM 🟡 | `test_getUserById_returnsUserWhenFound` |
-| No skipped tests | MEDIUM 🟡 | All `.skip` tests have issue reference |
-| Integration tests for APIs | MEDIUM 🟡 | E2E tests for critical flows |
-| Async tests properly await | HIGH 🟠 | No race conditions in tests |
+| No hardcoded secrets | CRITICAL 🔴 | Use appsettings.json + environment variables |
+| Input validation present | HIGH 🟠 | All user inputs validated and sanitized |
+| SQL injection prevention | CRITICAL 🔴 | Use EF Core (parameterized) |
+| Authentication required | HIGH 🟠 | Proper [Authorize] attributes |
+| Authorization checks | HIGH 🟠 | Verify permissions before operations |
+| No sensitive data in logs | HIGH 🟠 | Never log passwords, tokens, PII |
+| HTTPS in production | CRITICAL 🔴 | All endpoints HTTPS-only |
+| Dependencies updated | HIGH 🟠 | No known CVEs: `dotnet list package --vulnerable` |
 
 ## Error Handling
 
 | Standard | Enforcement | Check |
 |----------|-------------|-------|
-| Specific error types thrown | HIGH 🟠 | Not generic Error, use ValidationError, NotFoundError, etc. |
-| Error messages are descriptive | MEDIUM 🟡 | Include context about what failed |
-| Errors propagate appropriately | HIGH 🟠 | Don't swallow errors silently |
-| Try-catch at right level | HIGH 🟠 | Catch at service layer, let caller handle |
-| Graceful degradation | MEDIUM 🟡 | System doesn't crash on errors |
+| Result<T> pattern used | HIGH 🟠 | Expected failures return Result.Failure |
+| Specific error types | HIGH 🟠 | Custom error types, not generic Exception |
+| Meaningful error messages | MEDIUM 🟡 | Include context about what failed |
+| Errors don't leak details | HIGH 🟠 | Don't expose internal errors to client |
+| Proper exception catching | HIGH 🟠 | Catch specific exceptions, not base Exception |
+| Logging on errors | HIGH 🟠 | Errors logged with sufficient context |
 
-## Accessibility (if web application)
+## Code Review Checklist
 
-| Standard | Enforcement | Check |
-|----------|-------------|-------|
-| ARIA labels on interactive elements | MEDIUM 🟡 | Buttons, inputs have proper labels |
-| Keyboard navigation support | MEDIUM 🟡 | All features usable with keyboard |
-| Color contrast sufficient | MEDIUM 🟡 | WCAG AA compliance for color contrast |
-| Images have alt text | MEDIUM 🟡 | Descriptive alt text for all images |
-
-## Git & Version Control
-
-| Standard | Enforcement | Check |
-|----------|-------------|-------|
-| Commits follow conventional format | MEDIUM 🟡 | `feat:`, `fix:`, `docs:` prefixes |
-| Commit messages descriptive | MEDIUM 🟡 | Clear what and why, not just what |
-| No merge commits in history | LOW 🔵 | Use rebase or squash |
-| Related changes in single commit | MEDIUM 🟡 | Don't mix unrelated changes |
-
-## Checklist for Agents
-
-### Before Passing Code Forward
+### Before Passing to Next Phase
 
 ```
+Syntax & Compilation:
+☐ Code compiles without errors
+☐ No compiler warnings (TreatWarningsAsErrors passes)
+☐ SonarAnalyzer.CSharp: PASS
+☐ Microsoft.CodeAnalysis.NetAnalyzers: PASS
+☐ Meziantou.Analyzer: PASS
+
 Code Quality:
-☐ Compiles/runs without errors
-☐ Linting passes (ESLint, etc.)
-☐ Formatting applied
+☐ Naming conventions followed
+☐ Methods under 30 lines
+☐ Single Responsibility Principle
+☐ DRY principle followed
+☐ Proper error handling (Result<T> pattern)
+
+Documentation:
+☐ Public types have XML docs
+☐ Methods have [summary], [param], [returns]
+☐ Complex logic has explanatory comments
+☐ No TODOs without issue reference
+
+Testing:
+☐ Unit tests pass
+☐ Code coverage >= 80%
+☐ Edge cases covered
+☐ Error paths tested
+
+Performance:
+☐ No N+1 queries
+☐ Appropriate async/await
+☐ Efficient data structures
+
+Security:
+☐ No hardcoded secrets
+☐ Input validation present
+☐ No sensitive data in logs
+☐ Authorization checks
+
+Git:
+☐ Commits follow conventional format
+☐ Commit messages descriptive
+☐ Changes are cohesive
+```
+
+## Automated Quality Gates
+
+### Local Development
+
+```bash
+# Format and check
+dotnet format
+
+# Build with strict quality
+dotnet build /p:TreatWarningsAsErrors=true
+
+# Run all tests with coverage
+dotnet test /p:CollectCoverage=true /p:CoverageFormat=opencover
+
+# Check for vulnerable dependencies
+dotnet list package --vulnerable
+```
+
+### CI/CD Pipeline
+
+All of the above must pass before code can be merged.
+
+
 ☐ Functions under 30 lines
 ☐ No code duplication
 ☐ Naming conventions followed
