@@ -1,5 +1,8 @@
 # 🤖 Agentic AI Template - .NET Edition
 
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/MarcelRoozekrans?style=flat&logo=githubsponsors&color=ea4aaa&label=Sponsor)](https://github.com/sponsors/MarcelRoozekrans)
+
+
 A template repository for building reliable AI workflows in **.NET 10** using **agentic primitives**, **context engineering**, and **functional programming patterns**.
 
 Based on the [GitHub Blog: How to build reliable AI workflows](https://github.blog/ai-and-ml/github-copilot/how-to-build-reliable-ai-workflows-with-agentic-primitives-and-context-engineering/).
